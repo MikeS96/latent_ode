@@ -54,6 +54,8 @@ class GRU_unit(nn.Module):
         else:
             self.ew_state_net = new_state_net
 
+        # self.rnn = nn.GRU(input_dim, latent_dim * 2, batch_first=False).to(device)
+
     def forward(self, y_mean, y_std, x, masked_update=True):
         y_concat = torch.cat([y_mean, y_std, x], -1)
 
@@ -66,6 +68,11 @@ class GRU_unit(nn.Module):
 
         new_y = (1 - update_gate) * new_state + update_gate * y_mean
         new_y_std = (1 - update_gate) * new_state_std + update_gate * y_std
+
+        # Use this if using Pytorch GRU instead
+        # new_state, _ = self.rnn(x, torch.cat([y_mean, y_std], -1))
+        # new_y, new_y_std = utils.split_last_dim(new_state)
+        # new_y_std.abs()
 
         assert (not torch.isnan(new_y).any())
 
